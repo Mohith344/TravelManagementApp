@@ -18,6 +18,12 @@ public class Image {
     @ManyToOne(optional = false)
     @JoinColumn(name = "uploader_id", nullable = false)
     private User uploader;
+    
+    @Column
+    private String type; // "restaurant", "hotel", "package", etc.
+    
+    @Column
+    private Long relatedEntityId; // ID of the related restaurant, hotel, or package
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -31,4 +37,10 @@ public class Image {
 
     public User getUploader() { return uploader; }
     public void setUploader(User uploader) { this.uploader = uploader; }
+    
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
+    
+    public Long getRelatedEntityId() { return relatedEntityId; }
+    public void setRelatedEntityId(Long relatedEntityId) { this.relatedEntityId = relatedEntityId; }
 }

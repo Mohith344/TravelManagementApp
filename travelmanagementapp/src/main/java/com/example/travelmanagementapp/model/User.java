@@ -9,17 +9,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", nullable = false)
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
     @Column(name = "password", nullable = false)
-    private String password;
+    private String password; // Store encoded password
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "role", nullable = false)
-    private String role; // e.g., TRAVELLER, ADMIN
+    private String role; // e.g., TRAVELLER, ADMIN, TRAVEL_AGENCY
 
     @Column(name = "travel_agency_name")
     private String travelAgencyName; // Only for users with role TRAVEL_AGENCY

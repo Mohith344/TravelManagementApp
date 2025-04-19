@@ -6,12 +6,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import com.example.travelmanagementapp.model.TravelPackage;
 import com.example.travelmanagementapp.model.User;
-import com.example.travelmanagementapp.model.TravelAgency;
+//import com.example.travelmanagementapp.model.TravelAgency;
 import com.example.travelmanagementapp.model.Hotel;
 import com.example.travelmanagementapp.model.Restaurant;
 import com.example.travelmanagementapp.repository.TravelPackageRepository;
 import com.example.travelmanagementapp.repository.UserRepository;
-import com.example.travelmanagementapp.repository.TravelAgencyRepository;
+//import com.example.travelmanagementapp.repository.TravelAgencyRepository;
 import com.example.travelmanagementapp.repository.HotelRepository;
 import com.example.travelmanagementapp.repository.RestaurantRepository;
 
@@ -23,7 +23,7 @@ public class TravelManagementAppApplication {
     }
 
     @Bean
-    public CommandLineRunner loadData(UserRepository userRepository, TravelAgencyRepository travelAgencyRepository, TravelPackageRepository travelPackageRepository, HotelRepository hotelRepository, RestaurantRepository restaurantRepository) {
+    public CommandLineRunner loadData(UserRepository userRepository, TravelPackageRepository travelPackageRepository, HotelRepository hotelRepository, RestaurantRepository restaurantRepository) {
         return args -> {
             // Add default admin user
             if (userRepository.count() == 0) {
@@ -50,21 +50,14 @@ public class TravelManagementAppApplication {
                 userRepository.save(travelAgencyUser);
             }
 
-            // Add default travel agency
-            if (travelAgencyRepository.count() == 0) {
-                TravelAgency travelAgency = new TravelAgency();
-                travelAgency.setName("Default Agency");
-                travelAgency.setContactInfo("contact@defaultagency.com");
-                travelAgencyRepository.save(travelAgency);
-            }
-
             // Add default travel package
             if (travelPackageRepository.count() == 0) {
                 TravelPackage travelPackage = new TravelPackage();
                 travelPackage.setName("Default Package");
                 travelPackage.setDescription("A default travel package");
                 travelPackage.setPrice(1000.0);
-                travelPackage.setTravelAgency(travelAgencyRepository.findAll().get(0));
+                travelPackage.setUser(userRepository.findByUsername("agencyuser").orElse(null));
+                travelPackage.setTravelAgencyName("Default Agency");
                 travelPackageRepository.save(travelPackage);
             }
 

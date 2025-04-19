@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -22,17 +25,18 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestParam String username, @RequestParam String password, @RequestParam(required = false) String travelAgencyName) {
+    public ResponseEntity<Map<String, Object>> loginUser(@RequestParam String username, @RequestParam String password) {
         User user = userService.authenticateUser(username, password);
         if (user == null) {
-            return ResponseEntity.status(401).body("Invalid credentials");
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
         }
 
-        if ("TRAVEL_AGENCY".equals(user.getRole()) && !user.getTravelAgencyName().equals(travelAgencyName)) {
-            return ResponseEntity.status(401).body("Invalid travel agency name");
-        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("username", user.getUsername());
+        response.put("role", user.getRole());
+        response.put("isLoggedIn", true);
 
-        return ResponseEntity.ok("Login successful");
+        return ResponseEntity.ok(response);
     }
 
     @ExceptionHandler(OurException.class)

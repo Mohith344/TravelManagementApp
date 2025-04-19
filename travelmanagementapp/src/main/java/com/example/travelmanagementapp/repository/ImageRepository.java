@@ -2,7 +2,12 @@ package com.example.travelmanagementapp.repository;
 
 import com.example.travelmanagementapp.model.Image;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
+@Repository
 public interface ImageRepository extends JpaRepository<Image, Long> {
-    // Custom query methods can be defined here
+    List<Image> findByTypeAndRelatedEntityId(String type, Long relatedEntityId);
+    List<Image> findByType(String type);
 }

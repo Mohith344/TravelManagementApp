@@ -19,18 +19,16 @@ public class TravelPackage {
     private double price;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "travel_agency_id", nullable = false)
-    private TravelAgency travelAgency;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false)
+    private String travelAgencyName; // Use this field instead of a TravelAgency entity
 
     @OneToMany(mappedBy = "travelPackage", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Booking> bookings;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "travel_package_id")
     private List<Hotel> hotels;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "travel_package_id")
+    @OneToMany(mappedBy = "travelPackage", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Restaurant> restaurants;
 
     // Getters and Setters
@@ -66,20 +64,20 @@ public class TravelPackage {
         this.price = price;
     }
 
-    public TravelAgency getTravelAgency() {
-        return travelAgency;
+    public User getUser() {
+        return user;
     }
 
-    public void setTravelAgency(TravelAgency travelAgency) {
-        this.travelAgency = travelAgency;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public List<Booking> getBookings() {
-        return bookings;
+    public String getTravelAgencyName() {
+        return travelAgencyName;
     }
 
-    public void setBookings(List<Booking> bookings) {
-        this.bookings = bookings;
+    public void setTravelAgencyName(String travelAgencyName) {
+        this.travelAgencyName = travelAgencyName;
     }
 
     public List<Hotel> getHotels() {

@@ -4,12 +4,14 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // ✅ Add this
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
-export default function Navbar() {
+export default function Navbar({ onLoginClick, onRegisterClick }) {
   const { user, logout } = useAuth();
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
 
   return (
     <AppBar position="static">
@@ -23,8 +25,17 @@ export default function Navbar() {
 
         {!user ? (
           <>
-            <Button color="inherit" component={Link} to="/login">Login</Button>
-            <Button color="inherit" component={Link} to="/register">Register</Button>
+            {isHomePage ? (
+              <>
+                <Button color="inherit" onClick={onLoginClick}>Login</Button>
+                <Button color="inherit" onClick={onRegisterClick}>Register</Button>
+              </>
+            ) : (
+              <>
+                <Button color="inherit" component={Link} to="/login">Login</Button>
+                <Button color="inherit" component={Link} to="/register">Register</Button>
+              </>
+            )}
           </>
         ) : (
           <>

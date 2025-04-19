@@ -68,18 +68,5 @@ public class TravelManagementAppControllerTests {
         assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    @Test
-    public void testTravelAgencyEndpoints() {
-        // Test creating a travel agency
-        TravelAgency travelAgency = new TravelAgency();
-        travelAgency.setName("Global Travels");
-        travelAgency.setContactInfo("contact@globaltravels.com");
-
-        ResponseEntity<String> createResponse = restTemplate.postForEntity("/travel-agencies", travelAgency, String.class);
-        assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        // Test retrieving all travel agencies
-        ResponseEntity<List> getResponse = restTemplate.getForEntity("/travel-agencies", List.class);
-        assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+    
     }
-}

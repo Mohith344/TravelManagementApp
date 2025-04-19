@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, Alert } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Add this import
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth(); // Ensure useAuth is imported and used correctly
+  const { login } = useAuth();
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -18,18 +18,22 @@ export default function Login() {
     try {
       // Call backend login endpoint
       const response = await axios.post('/users/login', null, { params: form });
-      
-      // Store user info in localStorage
-      const userData = { 
+
+      // Extract user data from response
+      const userData = {
         username: form.username,
+        role: response.data.role, // Assuming role is returned in the response
         isLoggedIn: true
       };
+
+      // Store user info in localStorage
       localStorage.setItem('user', JSON.stringify(userData));
-      
+
       login(userData); // Use the login function from useAuth
+
       // Redirect to homepage
       navigate('/');
-      
+
       // Reload page to update navbar (alternatively, you could use Context API)
       window.location.reload();
     } catch (err) {
