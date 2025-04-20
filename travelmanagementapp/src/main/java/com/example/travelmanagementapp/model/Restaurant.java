@@ -1,6 +1,7 @@
 package com.example.travelmanagementapp.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class Restaurant {
@@ -23,9 +24,15 @@ public class Restaurant {
     @Column(name = "cuisine_type", nullable = false)
     private String cuisineType;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "travel_package_id", nullable = false)
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "travel_package_id")
     private TravelPackage travelPackage;
+    
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "destination_id")
+    private Destination destination;
 
     // Getters and Setters
     public Long getId() {
@@ -82,5 +89,13 @@ public class Restaurant {
 
     public void setTravelPackage(TravelPackage travelPackage) {
         this.travelPackage = travelPackage;
+    }
+    
+    public Destination getDestination() {
+        return destination;
+    }
+
+    public void setDestination(Destination destination) {
+        this.destination = destination;
     }
 }

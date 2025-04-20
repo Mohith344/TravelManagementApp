@@ -22,7 +22,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/images")
+@RequestMapping("/api/images")
+@CrossOrigin(origins = "*")
 public class ImageController {
     @Autowired
     private ImageService imageService;
@@ -78,20 +79,13 @@ public class ImageController {
                 .body(resource);
     }
     
-    @GetMapping("/by-type/{type}/{entityId}")
-    public ResponseEntity<List<String>> getImagesByTypeAndEntityId(
-            @PathVariable String type, 
+    @GetMapping("/entity/{type}/{entityId}")
+    public ResponseEntity<List<Image>> getImagesByEntityTypeAndId(
+            @PathVariable String type,
             @PathVariable Long entityId) {
-        
-        List<Image> images = imageRepository.findByTypeAndRelatedEntityId(type, entityId);
-        
-        List<String> imageUrls = images.stream()
-                .map(image -> ServletUriComponentsBuilder.fromCurrentContextPath()
-                        .path("/images/")
-                        .path(image.getFilename())
-                        .toUriString())
-                .collect(Collectors.toList());
-        
-        return ResponseEntity.ok(imageUrls);
+        // Search in both new and legacy fields to ensure we capture all images
+        List<Image> images = imageRepository.findByTypeAndRelatedEntityIdOrEntityTypeAndEntityId(
+            type, entityId, type, entityId);
+        return ResponseEntity.ok(images);
     }
 }

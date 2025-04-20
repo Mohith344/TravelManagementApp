@@ -4,9 +4,11 @@ import java.time.LocalDate;
 
 public class BookingDTO {
     private Long id;
-    private LocalDate bookingDate;
-    private LocalDate travelDate;
+    private String bookingDate;
+    private String travelDate;
     private double totalPrice;
+    private Long userId;
+    private Long travelPackageId;
 
     // Getters and Setters
     public Long getId() {
@@ -17,19 +19,19 @@ public class BookingDTO {
         this.id = id;
     }
 
-    public LocalDate getBookingDate() {
+    public String getBookingDate() {
         return bookingDate;
     }
 
-    public void setBookingDate(LocalDate bookingDate) {
+    public void setBookingDate(String bookingDate) {
         this.bookingDate = bookingDate;
     }
 
-    public LocalDate getTravelDate() {
+    public String getTravelDate() {
         return travelDate;
     }
 
-    public void setTravelDate(LocalDate travelDate) {
+    public void setTravelDate(String travelDate) {
         this.travelDate = travelDate;
     }
 
@@ -39,5 +41,21 @@ public class BookingDTO {
 
     public void setTotalPrice(double totalPrice) {
         this.totalPrice = totalPrice;
+    }
+    
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getTravelPackageId() {
+        return travelPackageId;
+    }
+
+    public void setTravelPackageId(Long travelPackageId) {
+        this.travelPackageId = travelPackageId;
     }
 }

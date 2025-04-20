@@ -180,20 +180,16 @@ public class TravelPackageService {
         // Save travel package first to get its ID
         travelPackageRepository.save(travelPackage);
         
-        // Process restaurant images
+        // Process restaurant images with package ID
         if (restaurantImages != null && !restaurantImages.isEmpty()) {
-            List<String> fileNames = imageService.savePackageImages(restaurantImages, user, "restaurant");
-            
-            // Associate images with package ID
-            // This is handled inside the imageService implementation
+            List<String> fileNames = imageService.savePackageImages(restaurantImages, user, "restaurant", travelPackage.getId());
+            // Association is now handled in the savePackageImages method
         }
         
-        // Process hotel images
+        // Process hotel images with package ID
         if (hotelImages != null && !hotelImages.isEmpty()) {
-            List<String> fileNames = imageService.savePackageImages(hotelImages, user, "hotel");
-            
-            // Associate images with package ID
-            // This is handled inside the imageService implementation
+            List<String> fileNames = imageService.savePackageImages(hotelImages, user, "hotel", travelPackage.getId());
+            // Association is now handled in the savePackageImages method
         }
 
         // Save restaurants

@@ -6,30 +6,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BookingService {
 
     @Autowired
     private BookingRepository bookingRepository;
-
-    public void createBooking(Booking booking) {
-        bookingRepository.save(booking);
+    
+    public Booking createBooking(Booking booking) {
+        return bookingRepository.save(booking);
     }
-
-    public List<Booking> getBookingsByUser(Long userId) {
+    
+    public List<Booking> getBookingsByUserId(Long userId) {
         return bookingRepository.findByUserId(userId);
     }
-
-    public Booking getBookingById(Long id) {
-        return bookingRepository.findById(id).orElse(null);
+    
+    public Optional<Booking> getBookingById(Long id) {
+        return bookingRepository.findById(id);
     }
-
-    public void updateBooking(Booking booking) {
-        bookingRepository.save(booking);
-    }
-
-    public void deleteBooking(Long id) {
+    
+    public void cancelBooking(Long id) {
         bookingRepository.deleteById(id);
     }
 }

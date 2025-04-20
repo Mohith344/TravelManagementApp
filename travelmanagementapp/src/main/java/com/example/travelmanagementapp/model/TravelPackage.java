@@ -2,6 +2,8 @@ package com.example.travelmanagementapp.model;
 
 import jakarta.persistence.*;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class TravelPackage {
@@ -25,9 +27,11 @@ public class TravelPackage {
     @Column(nullable = false)
     private String travelAgencyName; // Use this field instead of a TravelAgency entity
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "travelPackage", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Hotel> hotels;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "travelPackage", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Restaurant> restaurants;
 

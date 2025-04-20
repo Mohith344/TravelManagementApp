@@ -2,7 +2,8 @@ package com.example.travelmanagementapp.repository;
 
 import com.example.travelmanagementapp.model.Hotel;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
 public interface HotelRepository extends JpaRepository<Hotel, Long> {
-    // Custom query methods can be defined here
+    List<Hotel> findByDestinationId(Long destinationId);
 }

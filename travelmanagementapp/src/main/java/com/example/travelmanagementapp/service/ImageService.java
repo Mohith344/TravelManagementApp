@@ -3,6 +3,7 @@ package com.example.travelmanagementapp.service;
 import com.example.travelmanagementapp.model.Image;
 import com.example.travelmanagementapp.model.User;
 import com.example.travelmanagementapp.repository.ImageRepository;
+import com.example.travelmanagementapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -26,6 +27,9 @@ public class ImageService {
     @Autowired
     private ImageRepository imageRepository;
     
+    @Autowired
+    private UserRepository userRepository;
+    
     private final Path fileStorageLocation;
     
     public ImageService() {
@@ -41,35 +45,98 @@ public class ImageService {
 
     public Image saveImage(String filename, User uploader) {
         Image image = new Image();
-        image.setFilename(filename);
+        image.setFilePath(filename);
+        image.setFilename(filename.substring(filename.lastIndexOf('/') + 1));
         image.setUploader(uploader);
-        image.setUploadDate(LocalDateTime.now());
+        image.setUploadDate(LocalDateTime.now()); // Set the required upload date
+        image.setEntityType("general"); // Set a default entity type
+        image.setEntityId(0L); // Set a default entity ID
+        // Set legacy fields too
+        image.setType("general");
+        image.setRelatedEntityId(0L);
         return imageRepository.save(image);
     }
     
+    public String saveImage(MultipartFile image, String type, Long entityId) throws IOException {
+        return saveImage(image, type, entityId, "admin"); // Use default admin user
+    }
+    
+    public String saveImage(MultipartFile file, String entityType, Long entityId, String username) throws IOException {
+        // Find the user by username
+        User uploader = userRepository.findByUsername(username)
+            .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+            
+        // Create directory if it doesn't exist
+        String uploadDir = "uploads/" + entityType;
+        File dir = new File(uploadDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        
+        // Generate unique filename
+        String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        Path filePath = Paths.get(uploadDir, filename);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        
+        // Create image record with ALL required fields
+        Image image = new Image();
+        image.setFilePath(uploadDir + "/" + filename);
+        image.setFilename(filename);
+        image.setEntityType(entityType);
+        image.setEntityId(entityId);
+        image.setUploader(uploader);
+        image.setUploadDate(LocalDateTime.now()); // Set the required upload date
+        
+        // Set legacy fields for backward compatibility
+        image.setType(entityType);
+        image.setRelatedEntityId(entityId);
+        
+        imageRepository.save(image);
+        
+        return uploadDir + "/" + filename; // Return the relative path, not the absolute Path object
+    }
+    
     public List<String> savePackageImages(List<MultipartFile> images, User uploader, String type) throws IOException {
+        return savePackageImages(images, uploader, type, null);
+    }
+    
+    public List<String> savePackageImages(List<MultipartFile> images, User uploader, String type, Long packageId) throws IOException {
         List<String> fileNames = new ArrayList<>();
         
-        if (images != null) {
-            for (MultipartFile image : images) {
-                if (!image.isEmpty()) {
-                    String fileName = StringUtils.cleanPath(image.getOriginalFilename());
-                    String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
-                    
-                    // Save to filesystem
-                    Path targetLocation = this.fileStorageLocation.resolve(uniqueFileName);
-                    Files.copy(image.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-                    
-                    // Save reference in database
-                    Image imageEntity = new Image();
-                    imageEntity.setFilename(uniqueFileName);
-                    imageEntity.setUploader(uploader);
-                    imageEntity.setUploadDate(LocalDateTime.now());
-                    imageEntity.setType(type); // "restaurant", "hotel", etc.
-                    imageRepository.save(imageEntity);
-                    
-                    fileNames.add(uniqueFileName);
+        for (MultipartFile file : images) {
+            if (!file.isEmpty()) {
+                String uploadDir = "uploads/packages/" + type;
+                File dir = new File(uploadDir);
+                if (!dir.exists()) {
+                    dir.mkdirs();
                 }
+                
+                String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                Path filePath = Paths.get(uploadDir, filename);
+                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                
+                Image image = new Image();
+                image.setFilePath(uploadDir + "/" + filename);
+                image.setFilename(filename);
+                image.setEntityType("package_" + type);
+                image.setUploader(uploader);
+                image.setUploadDate(LocalDateTime.now());
+                
+                // Set the entity ID if provided
+                if (packageId != null) {
+                    image.setEntityId(packageId);
+                    image.setRelatedEntityId(packageId); // Set legacy field too
+                } else {
+                    image.setEntityId(0L); // Default value if no ID provided
+                    image.setRelatedEntityId(0L);
+                }
+                
+                // Set legacy fields for backward compatibility
+                image.setType("package_" + type);
+                
+                imageRepository.save(image);
+                
+                fileNames.add(uploadDir + "/" + filename);
             }
         }
         

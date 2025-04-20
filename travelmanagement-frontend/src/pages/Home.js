@@ -6,10 +6,17 @@ import HeroSection from '../components/HeroSection';
 import ContactUs from '../components/ContactUs';
 import Login from './Login';
 import Register from './Register';
-import { Modal, Box, Card, CardContent, Typography, Button } from '@mui/material';
+import { Modal, Box, Card, CardContent, Typography, Button, Stack, Divider } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import HotelIcon from '@mui/icons-material/Hotel';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import LuggageIcon from '@mui/icons-material/Luggage';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 export default function Home() {
   const [carouselImages, setCarouselImages] = useState([]);
@@ -17,9 +24,6 @@ export default function Home() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  console.log('User:', user);
-  console.log(user?.role);
 
   useEffect(() => {
     // Fetch images from backend (replace with your endpoint)
@@ -60,27 +64,27 @@ export default function Home() {
   };
 
   const handleAddRestaurant = () => {
-    alert('Redirect to Add Restaurant');
+    navigate('/add-restaurant');
   };
 
   const handleViewRestaurants = () => {
-    alert('Redirect to View Restaurants');
+    navigate('/view-restaurants');
   };
 
   const handleAddHotel = () => {
-    alert('Redirect to Add Hotel');
+    navigate('/add-hotel');
   };
 
   const handleViewHotels = () => {
-    alert('Redirect to View Hotels');
+    navigate('/view-hotels');
   };
 
   const handleAddDestination = () => {
-    alert('Redirect to Add Destination');
+    navigate('/add-destination');
   };
 
   const handleViewDestinations = () => {
-    alert('Redirect to View Destinations');
+    navigate('/view-destinations');
   };
 
   return (
@@ -89,96 +93,148 @@ export default function Home() {
       <SearchBar onSearch={handleSearch} />
       <ImageCarousel images={carouselImages} />
       {user?.role === 'TRAVEL_AGENCY' ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, mt: 4 }}>
-          <Card sx={{ maxWidth: 300 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 4, mt: 4, px: 3, maxWidth: 1200, mx: 'auto' }}>
+          {/* Create Package Card */}
+          <Card sx={{ width: 360, height: '100%' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Create Packages</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Create new travel packages to offer to your customers.
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <AddCircleIcon sx={{ fontSize: 28, mr: 1, color: 'primary.main' }} />
+                <Typography variant="h5">Create Package</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                Create new travel packages with restaurants, hotels, and images to offer to your customers.
               </Typography>
-              <Button variant="contained" sx={{ mt: 2 }} onClick={handleCreatePackage}>
-                Create Package
+              <Divider sx={{ my: 2 }} />
+              <Button 
+                variant="contained" 
+                startIcon={<LuggageIcon />}
+                fullWidth 
+                onClick={handleCreatePackage}
+                size="large"
+              >
+                Create New Package
               </Button>
             </CardContent>
           </Card>
-          <Card sx={{ maxWidth: 300 }}>
+
+          {/* View Packages Card */}
+          <Card sx={{ width: 360, height: '100%' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>View Packages</Typography>
-              <Typography variant="body2" color="text.secondary">
-                View and manage all the packages you have created.
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <ViewListIcon sx={{ fontSize: 28, mr: 1, color: 'primary.main' }} />
+                <Typography variant="h5">View Packages</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                View and manage all the packages you've created. Edit details, update images, or remove packages.
               </Typography>
-              <Button variant="contained" sx={{ mt: 2 }} onClick={handleViewPackages}>
-                View Packages
+              <Divider sx={{ my: 2 }} />
+              <Button 
+                variant="contained" 
+                startIcon={<VisibilityIcon />}
+                fullWidth 
+                onClick={handleViewPackages}
+                size="large"
+              >
+                View My Packages
               </Button>
             </CardContent>
           </Card>
         </Box>
       ) : user?.role === 'ADMIN' ? (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 4, mt: 4 }}>
-          <Card sx={{ maxWidth: 300 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 4, mt: 4, px: 3, maxWidth: 1200, mx: 'auto' }}>
+          {/* Restaurants Card */}
+          <Card sx={{ width: 360, height: '100%' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Add Restaurant</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Add new restaurants to the system.
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <RestaurantIcon sx={{ fontSize: 28, mr: 1, color: 'primary.main' }} />
+                <Typography variant="h5">Restaurants</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                Add new restaurants to the system or view and manage existing ones.
               </Typography>
-              <Button variant="contained" sx={{ mt: 2 }} onClick={handleAddRestaurant}>
-                Add Restaurant
-              </Button>
+              <Divider sx={{ my: 2 }} />
+              <Stack spacing={2}>
+                <Button 
+                  variant="contained" 
+                  startIcon={<AddCircleIcon />}
+                  fullWidth 
+                  onClick={handleAddRestaurant}
+                >
+                  Add Restaurant
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<ViewListIcon />}
+                  fullWidth
+                  onClick={handleViewRestaurants}
+                >
+                  View Restaurants
+                </Button>
+              </Stack>
             </CardContent>
           </Card>
-          <Card sx={{ maxWidth: 300 }}>
+
+          {/* Hotels Card */}
+          <Card sx={{ width: 360, height: '100%' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>View Restaurants</Typography>
-              <Typography variant="body2" color="text.secondary">
-                View and manage all added restaurants.
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <HotelIcon sx={{ fontSize: 28, mr: 1, color: 'primary.main' }} />
+                <Typography variant="h5">Hotels</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                Add new hotels to the system or view and manage existing ones.
               </Typography>
-              <Button variant="contained" sx={{ mt: 2 }} onClick={handleViewRestaurants}>
-                View Restaurants
-              </Button>
+              <Divider sx={{ my: 2 }} />
+              <Stack spacing={2}>
+                <Button 
+                  variant="contained" 
+                  startIcon={<AddCircleIcon />}
+                  fullWidth 
+                  onClick={handleAddHotel}
+                >
+                  Add Hotel
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<ViewListIcon />}
+                  fullWidth
+                  onClick={handleViewHotels}
+                >
+                  View Hotels
+                </Button>
+              </Stack>
             </CardContent>
           </Card>
-          <Card sx={{ maxWidth: 300 }}>
+
+          {/* Destinations Card */}
+          <Card sx={{ width: 360, height: '100%' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Add Hotel</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Add new hotels to the system.
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <LocationOnIcon sx={{ fontSize: 28, mr: 1, color: 'primary.main' }} />
+                <Typography variant="h5">Destinations</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                Add new destinations to the system or view and manage existing ones.
               </Typography>
-              <Button variant="contained" sx={{ mt: 2 }} onClick={handleAddHotel}>
-                Add Hotel
-              </Button>
-            </CardContent>
-          </Card>
-          <Card sx={{ maxWidth: 300 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>View Hotels</Typography>
-              <Typography variant="body2" color="text.secondary">
-                View and manage all added hotels.
-              </Typography>
-              <Button variant="contained" sx={{ mt: 2 }} onClick={handleViewHotels}>
-                View Hotels
-              </Button>
-            </CardContent>
-          </Card>
-          <Card sx={{ maxWidth: 300 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>Add Destination</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Add new destinations to the system.
-              </Typography>
-              <Button variant="contained" sx={{ mt: 2 }} onClick={handleAddDestination}>
-                Add Destination
-              </Button>
-            </CardContent>
-          </Card>
-          <Card sx={{ maxWidth: 300 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>View Destinations</Typography>
-              <Typography variant="body2" color="text.secondary">
-                View and manage all added destinations.
-              </Typography>
-              <Button variant="contained" sx={{ mt: 2 }} onClick={handleViewDestinations}>
-                View Destinations
-              </Button>
+              <Divider sx={{ my: 2 }} />
+              <Stack spacing={2}>
+                <Button 
+                  variant="contained" 
+                  startIcon={<AddCircleIcon />}
+                  fullWidth 
+                  onClick={handleAddDestination}
+                >
+                  Add Destination
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<ViewListIcon />}
+                  fullWidth
+                  onClick={handleViewDestinations}
+                >
+                  View Destinations
+                </Button>
+              </Stack>
             </CardContent>
           </Card>
         </Box>
