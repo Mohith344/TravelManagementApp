@@ -24,6 +24,8 @@ import HotelIcon from '@mui/icons-material/Hotel';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import CancelIcon from '@mui/icons-material/Cancel';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import dayjs from 'dayjs';
 
 export default function MyBookings() {
@@ -52,17 +54,48 @@ export default function MyBookings() {
       return;
     }
 
+    // Debug: Log user object to see its structure
+    console.log('Current user object:', user);
+    
     fetchBookings();
   }, [user, navigate]);
 
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/bookings/user/${user.id}`);
+      console.log('Fetching bookings for user:', user);
+      
+      let response;
+      
+      // Check for different variations of user ID property
+      if (user.id !== undefined) {
+        console.log('Using user.id:', user.id);
+        response = await axios.get(`/api/bookings/user/${user.id}`);
+      } else if (user.userId !== undefined) {
+        console.log('Using user.userId:', user.userId);
+        response = await axios.get(`/api/bookings/user/${user.userId}`);
+      } else if (user.ID !== undefined) {
+        console.log('Using user.ID:', user.ID);
+        response = await axios.get(`/api/bookings/user/${user.ID}`);
+      } else if (user.username) {
+        console.log('Using username fallback:', user.username);
+        response = await axios.get(`/api/bookings/username/${user.username}`);
+      } else {
+        throw new Error('Unable to identify user - no ID or username found');
+      }
+      
+      console.log('Bookings data received:', response.data);
+      
+      // The backend already filters bookings by user ID, so we don't need additional filtering
+      // Just use the bookings returned from the API directly
       setBookings(response.data);
       setError('');
     } catch (err) {
       console.error('Error fetching bookings:', err);
+      if (err.response) {
+        console.error('Error response:', err.response.data);
+        console.error('Error status:', err.response.status);
+      }
       setError('Failed to load your bookings. Please try again later.');
     } finally {
       setLoading(false);
@@ -99,14 +132,38 @@ export default function MyBookings() {
   };
 
   const isUpcoming = (travelDateStr) => {
-    const today = dayjs();
-    const travelDate = dayjs(travelDateStr);
-    return travelDate.isAfter(today, 'day');
+    const today = dayjs().startOf('day'); // Start of today to handle same-day bookings properly
+    const travelDate = dayjs(travelDateStr).startOf('day');
+    return travelDate.isSame(today) || travelDate.isAfter(today); // Include today's bookings as upcoming
   };
 
   // Format date from ISO format to readable format
   const formatDate = (dateStr) => {
     return dayjs(dateStr).format('MMMM D, YYYY');
+  };
+
+  // Check if a booking is a destination booking
+  const isDestinationBooking = (booking) => {
+    return booking.travelPackage && booking.travelPackage.isPersonalBooking === true;
+  };
+
+  // Get destination name from booking package name 
+  const extractDestinationName = (packageName) => {
+    if (packageName.startsWith('My Trip to ')) {
+      return packageName.replace('My Trip to ', '');
+    }
+    if (packageName.startsWith('Booking for ')) {
+      return packageName.replace('Booking for ', '');
+    }
+    return packageName;
+  };
+
+  // Get hotel name from booking package description
+  const extractHotelName = (packageDescription) => {
+    if (packageDescription.startsWith('Hotel: ')) {
+      return packageDescription.replace('Hotel: ', '');
+    }
+    return packageDescription;
   };
 
   if (loading) {
@@ -183,9 +240,20 @@ export default function MyBookings() {
                     <Card sx={{ height: '100%' }}>
                       <CardContent>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                          <Typography variant="h5" gutterBottom>
-                            {booking.travelPackage.name}
-                          </Typography>
+                          {isDestinationBooking(booking) || booking.travelPackage.name.startsWith('Booking for') || booking.travelPackage.name.startsWith('My Trip to ') ? (
+                            // For destination bookings
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <FlightTakeoffIcon sx={{ mr: 1, color: 'primary.main' }} />
+                              <Typography variant="h5" gutterBottom>
+                                {extractDestinationName(booking.travelPackage.name)}
+                              </Typography>
+                            </Box>
+                          ) : (
+                            // For package bookings
+                            <Typography variant="h5" gutterBottom>
+                              {booking.travelPackage.name}
+                            </Typography>
+                          )}
                           <Chip 
                             icon={<AttachMoneyIcon />}
                             label={`$${booking.totalPrice}`}
@@ -200,28 +268,45 @@ export default function MyBookings() {
                           </Typography>
                         </Box>
 
-                        <Typography variant="body2" color="text.secondary" paragraph>
-                          {booking.travelPackage.description}
-                        </Typography>
-
-                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-                          {booking.travelPackage.hotels && (
-                            <Chip 
-                              icon={<HotelIcon />}
-                              label={`${booking.travelPackage.hotels.length} Hotels`}
-                              size="small"
-                              variant="outlined"
-                            />
-                          )}
-                          {booking.travelPackage.restaurants && (
-                            <Chip 
-                              icon={<RestaurantIcon />}
-                              label={`${booking.travelPackage.restaurants.length} Restaurants`}
-                              size="small"
-                              variant="outlined"
-                            />
-                          )}
-                        </Box>
+                        {isDestinationBooking(booking) || booking.travelPackage.name.startsWith('Booking for') || booking.travelPackage.name.startsWith('My Trip to ') ? (
+                          // For destination bookings
+                          <>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                              <HotelIcon sx={{ mr: 1, color: 'primary.main' }} />
+                              <Typography>
+                                {extractHotelName(booking.travelPackage.description)}
+                              </Typography>
+                            </Box>
+                            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                              Direct destination booking
+                            </Typography>
+                          </>
+                        ) : (
+                          // For package bookings
+                          <>
+                            <Typography variant="body2" color="text.secondary" paragraph>
+                              {booking.travelPackage.description}
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+                              {booking.travelPackage.hotels && (
+                                <Chip 
+                                  icon={<HotelIcon />}
+                                  label={`${booking.travelPackage.hotels.length} Hotels`}
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              )}
+                              {booking.travelPackage.restaurants && (
+                                <Chip 
+                                  icon={<RestaurantIcon />}
+                                  label={`${booking.travelPackage.restaurants.length} Restaurants`}
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              )}
+                            </Box>
+                          </>
+                        )}
                         
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                           <Button 
@@ -250,9 +335,20 @@ export default function MyBookings() {
                     <Card sx={{ height: '100%', opacity: 0.8 }}>
                       <CardContent>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                          <Typography variant="h5" gutterBottom>
-                            {booking.travelPackage.name}
-                          </Typography>
+                          {isDestinationBooking(booking) || booking.travelPackage.name.startsWith('Booking for') || booking.travelPackage.name.startsWith('My Trip to ') ? (
+                            // For destination bookings
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <FlightTakeoffIcon sx={{ mr: 1 }} />
+                              <Typography variant="h5" gutterBottom>
+                                {extractDestinationName(booking.travelPackage.name)}
+                              </Typography>
+                            </Box>
+                          ) : (
+                            // For package bookings
+                            <Typography variant="h5" gutterBottom>
+                              {booking.travelPackage.name}
+                            </Typography>
+                          )}
                           <Chip 
                             icon={<AttachMoneyIcon />}
                             label={`$${booking.totalPrice}`}
@@ -266,9 +362,20 @@ export default function MyBookings() {
                           </Typography>
                         </Box>
 
-                        <Typography variant="body2" color="text.secondary" paragraph>
-                          {booking.travelPackage.description}
-                        </Typography>
+                        {isDestinationBooking(booking) || booking.travelPackage.name.startsWith('Booking for') || booking.travelPackage.name.startsWith('My Trip to ') ? (
+                          // For destination bookings
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                            <HotelIcon sx={{ mr: 1 }} />
+                            <Typography>
+                              {extractHotelName(booking.travelPackage.description)}
+                            </Typography>
+                          </Box>
+                        ) : (
+                          // For package bookings
+                          <Typography variant="body2" color="text.secondary" paragraph>
+                            {booking.travelPackage.description}
+                          </Typography>
+                        )}
                       </CardContent>
                     </Card>
                   </Grid>
@@ -286,7 +393,11 @@ export default function MyBookings() {
             </Typography>
             {selectedBooking && (
               <>
-                <Typography variant="h6">{selectedBooking.travelPackage.name}</Typography>
+                {isDestinationBooking(selectedBooking) || selectedBooking.travelPackage.name.startsWith('Booking for') || selectedBooking.travelPackage.name.startsWith('My Trip to ') ? (
+                  <Typography variant="h6">Trip to {extractDestinationName(selectedBooking.travelPackage.name)}</Typography>
+                ) : (
+                  <Typography variant="h6">{selectedBooking.travelPackage.name}</Typography>
+                )}
                 <Typography variant="body1">
                   Travel Date: {formatDate(selectedBooking.travelDate)}
                 </Typography>

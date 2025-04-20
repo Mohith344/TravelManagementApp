@@ -152,7 +152,8 @@ public class BookingController {
             // For destination bookings, we create a special "virtual" travel package that
             // represents this specific hotel + destination combination
             TravelPackage virtualPackage = new TravelPackage();
-            virtualPackage.setName("Booking for " + destinationOpt.get().getName());
+            // Personalize the package name to include the user's identifier
+            virtualPackage.setName("My Trip to " + destinationOpt.get().getName());
             virtualPackage.setDescription("Hotel: " + hotelOpt.get().getName());
             virtualPackage.setPrice(bookingDTO.getTotalPrice());
             
@@ -161,6 +162,8 @@ public class BookingController {
             
             // Set the user who created this virtual package
             virtualPackage.setUser(user);
+            // Flag this as a private destination booking package, not a public package
+            virtualPackage.setIsPersonalBooking(true);
             
             // Save the virtual package
             virtualPackage = travelPackageRepository.save(virtualPackage);
@@ -193,6 +196,23 @@ public class BookingController {
             }
             
             List<Booking> bookings = bookingService.getBookingsByUserId(userId);
+            return ResponseEntity.ok(bookings);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error fetching bookings: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/username/{username}")
+    public ResponseEntity<?> getUserBookingsByUsername(@PathVariable String username) {
+        try {
+            // Validate user exists
+            Optional<User> userOpt = userRepository.findByUsername(username);
+            if (!userOpt.isPresent()) {
+                return ResponseEntity.badRequest().body("User not found");
+            }
+            
+            User user = userOpt.get();
+            List<Booking> bookings = bookingService.getBookingsByUserId(user.getId());
             return ResponseEntity.ok(bookings);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error fetching bookings: " + e.getMessage());

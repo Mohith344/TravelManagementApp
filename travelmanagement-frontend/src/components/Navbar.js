@@ -21,6 +21,8 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ExploreIcon from '@mui/icons-material/Explore';
+import FeedbackIcon from '@mui/icons-material/Feedback';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 
 export default function Navbar({ onLoginClick, onRegisterClick }) {
   const { user, logout } = useAuth();
@@ -128,6 +130,12 @@ export default function Navbar({ onLoginClick, onRegisterClick }) {
                 </ListItemIcon>
                 <ListItemText>View Restaurants</ListItemText>
               </MenuItem>
+              <MenuItem component={Link} to="/manage-complaints" onClick={handleAdminMenuClose}>
+                <ListItemIcon>
+                  <ReportProblemIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Manage Complaints</ListItemText>
+              </MenuItem>
             </Menu>
           </>
         )}
@@ -180,6 +188,12 @@ export default function Navbar({ onLoginClick, onRegisterClick }) {
                   <BookOnlineIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>My Bookings</ListItemText>
+              </MenuItem>
+              <MenuItem component={Link} to="/my-complaints" onClick={handleTravelerMenuClose}>
+                <ListItemIcon>
+                  <FeedbackIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>My Complaints</ListItemText>
               </MenuItem>
             </Menu>
           </>

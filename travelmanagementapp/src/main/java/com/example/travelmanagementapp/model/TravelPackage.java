@@ -27,6 +27,10 @@ public class TravelPackage {
     @Column(nullable = false)
     private String travelAgencyName; // Use this field instead of a TravelAgency entity
 
+    // Flag to identify packages that are created for personal destination bookings
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean isPersonalBooking = false;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "travelPackage", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Hotel> hotels;
@@ -82,6 +86,14 @@ public class TravelPackage {
 
     public void setTravelAgencyName(String travelAgencyName) {
         this.travelAgencyName = travelAgencyName;
+    }
+
+    public Boolean getIsPersonalBooking() {
+        return isPersonalBooking;
+    }
+
+    public void setIsPersonalBooking(Boolean isPersonalBooking) {
+        this.isPersonalBooking = isPersonalBooking;
     }
 
     public List<Hotel> getHotels() {

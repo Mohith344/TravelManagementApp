@@ -9,6 +9,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+import java.util.List;
+
 @Service
 public class UserService implements UserDetailsService {
 
@@ -38,5 +41,18 @@ public class UserService implements UserDetailsService {
 
     public User authenticateUser(String username, String password) {
         return userRepository.findByUsernameAndPassword(username, password).orElse(null);
+    }
+    
+    // Method needed by the complaint functionality
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+    
+    public List<User> findByRole(String role) {
+        return userRepository.findByRole(role);
+    }
+    
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
     }
 }

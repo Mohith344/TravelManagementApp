@@ -22,6 +22,8 @@ import PackageDetails from './pages/PackageDetails';
 import BookPackage from './pages/BookPackage';
 import ViewTravelPackages from './pages/ViewTravelPackages';
 import MyBookings from './pages/MyBookings';
+import MyComplaints from './pages/MyComplaints';
+import ManageComplaints from './pages/ManageComplaints';
 
 function App() {
   return (
@@ -42,6 +44,7 @@ function App() {
             <Route path="/view-destinations" element={<ViewDestinations />} />
             <Route path="/view-hotels" element={<ViewHotels />} />
             <Route path="/view-restaurants" element={<ViewRestaurants />} />
+            <Route path="/manage-complaints" element={<ManageComplaints />} />
             {/* New Search Routes */}
             <Route path="/search-results" element={<SearchResults />} />
             <Route path="/destination-details/:id" element={<DestinationDetails />} />
@@ -50,6 +53,7 @@ function App() {
             <Route path="/book-package/:id" element={<BookPackage />} />
             <Route path="/view-travel-packages" element={<ViewTravelPackages />} />
             <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="/my-complaints" element={<MyComplaints />} />
           </Routes>
         </div>
       </Router>
