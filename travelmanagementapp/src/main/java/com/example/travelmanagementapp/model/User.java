@@ -1,5 +1,6 @@
 package com.example.travelmanagementapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class User {
     @Column(name = "travel_agency_name")
     private String travelAgencyName; // Only for users with role TRAVEL_AGENCY
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Booking> bookings;
 

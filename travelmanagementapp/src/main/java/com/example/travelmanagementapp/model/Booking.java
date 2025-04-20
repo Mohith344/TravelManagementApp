@@ -1,5 +1,6 @@
 package com.example.travelmanagementapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -18,6 +19,7 @@ public class Booking {
     @Column(nullable = false)
     private double totalPrice;
 
+    @JsonBackReference
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

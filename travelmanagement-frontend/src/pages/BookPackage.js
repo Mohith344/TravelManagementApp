@@ -2,45 +2,40 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
-  TextField,
   Button,
-  Card,
-  CardContent,
-  CardMedia,
   Grid,
-  CircularProgress,
-  Alert,
   Paper,
+  TextField,
   Divider,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   Chip,
+  CircularProgress,
+  Alert,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  FormControl,
-  InputLabel,
-  Input,
-  InputAdornment
+  Card,
+  CardMedia,
+  CardContent
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
-import { useAuth } from '../context/AuthContext';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import HotelIcon from '@mui/icons-material/Hotel';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import EventIcon from '@mui/icons-material/Event';
 import PersonIcon from '@mui/icons-material/Person';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import dayjs from 'dayjs';
 
 export default function BookPackage() {
   const { id } = useParams();
@@ -56,6 +51,7 @@ export default function BookPackage() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
   const [bookingId, setBookingId] = useState(null);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
     // Protect the route - only logged-in users can access
@@ -64,9 +60,9 @@ export default function BookPackage() {
       return;
     }
 
-    // Only travelers can book packages
+    // Check if user has TRAVELLER role
     if (user.role !== 'TRAVELLER' && user.role !== 'ROLE_TRAVELLER') {
-      setError('Only travelers can book packages');
+      setAccessDenied(true);
       setLoading(false);
       return;
     }
@@ -93,16 +89,22 @@ export default function BookPackage() {
     try {
       setSubmitting(true);
       
-      // Create booking data
+      // Create booking data with proper type checking for userId
       const bookingData = {
-        userId: user.id,
+        userId: user.id ? Number(user.id) : null,
+        username: user.username, // Adding username as a fallback
         travelPackageId: packageData.id,
         bookingDate: bookingDate.format('YYYY-MM-DD'),
         travelDate: travelDate.format('YYYY-MM-DD'),
         totalPrice: packageData.price
       };
       
+      console.log('Sending booking data:', bookingData);
+      
+      // Use the correct endpoint from the BookingController
       const response = await axios.post('/api/bookings', bookingData);
+      
+      console.log('Booking response:', response.data);
       setBookingId(response.data.id);
       setBookingComplete(true);
       setShowConfirmation(false);
@@ -131,6 +133,37 @@ export default function BookPackage() {
         <Navbar />
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
           <CircularProgress />
+        </Box>
+      </>
+    );
+  }
+
+  if (accessDenied) {
+    return (
+      <>
+        <Navbar />
+        <Box sx={{ p: 3, maxWidth: 800, mx: 'auto', textAlign: 'center', mt: 4 }}>
+          <Alert severity="warning" sx={{ mb: 3 }}>
+            Only travelers can book packages.
+          </Alert>
+          <Typography variant="h5" gutterBottom>
+            Please register as a traveler to book packages
+          </Typography>
+          <Button 
+            variant="contained" 
+            color="primary"
+            onClick={() => navigate(`/package-details/${id}`)} 
+            sx={{ mt: 2, mr: 2 }}
+          >
+            View Package Details
+          </Button>
+          <Button 
+            variant="outlined" 
+            onClick={() => navigate('/')} 
+            sx={{ mt: 2 }}
+          >
+            Return to Home
+          </Button>
         </Box>
       </>
     );
@@ -273,14 +306,13 @@ export default function BookPackage() {
                 Complete Your Booking
               </Typography>
               <form onSubmit={handleSubmit}>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <Box sx={{ mb: 3 }}>
                     <Typography variant="subtitle1" gutterBottom>
                       Today's Date:
                     </Typography>
                     <DatePicker
-                      label="Booking Date"
-                      value={bookingDate.toDate()}
+                      value={bookingDate}
                       disabled
                       renderInput={(params) => <TextField {...params} fullWidth />}
                     />
@@ -291,10 +323,9 @@ export default function BookPackage() {
                       Select Travel Date:
                     </Typography>
                     <DatePicker
-                      label="Travel Date"
-                      value={travelDate.toDate()}
-                      onChange={(date) => setTravelDate(dayjs(date))}
-                      minDate={new Date()}
+                      value={travelDate}
+                      onChange={(date) => setTravelDate(date)}
+                      minDate={bookingDate.add(1, 'day')}
                       renderInput={(params) => <TextField {...params} fullWidth required />}
                     />
                   </Box>

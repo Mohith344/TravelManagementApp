@@ -126,32 +126,35 @@ export default function BookDestination() {
       setLoading(true);
       setError('');
       
-      // This is a placeholder - you would need to implement the booking endpoint in your backend
+      // Create destination booking data
       const bookingData = {
-        userId: user.id,
-        destinationId: id,
-        hotelId: form.hotelId,
+        userId: user.id ? Number(user.id) : null,
+        username: user.username, // Add username as fallback like in package bookings
+        hotelId: Number(form.hotelId),
+        destinationId: Number(id),
         travelDate: form.travelDate,
         returnDate: form.returnDate,
-        numberOfPeople: form.numberOfPeople,
+        numberOfPeople: Number(form.numberOfPeople),
         specialRequests: form.specialRequests,
         totalPrice: calculateTotalPrice()
       };
       
-      // Simulate a booking API call
-      // In a real app, you would call your booking API
-      // await axios.post('/api/bookings', bookingData);
+      console.log('Sending destination booking data:', bookingData);
       
-      // For demo purposes:
-      console.log('Booking data:', bookingData);
-      setTimeout(() => {
+      // Make the actual API call to create a booking
+      const response = await axios.post('/api/bookings/destination', bookingData);
+      
+      console.log('Booking response:', response.data);
+      
+      if (response.data && response.data.status === 'success') {
         setBookingSuccess(true);
-        setLoading(false);
-      }, 1500);
-      
+      } else {
+        setError('Failed to create booking. Please try again.');
+      }
     } catch (err) {
       console.error('Error creating booking:', err);
       setError('Failed to create booking. Please try again later.');
+    } finally {
       setLoading(false);
     }
   };

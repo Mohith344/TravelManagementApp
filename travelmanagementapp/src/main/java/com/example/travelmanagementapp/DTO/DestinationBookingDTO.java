@@ -1,15 +1,17 @@
 package com.example.travelmanagementapp.DTO;
 
-import java.time.LocalDate;
-
-public class BookingDTO {
+public class DestinationBookingDTO {
     private Long id;
     private String bookingDate;
     private String travelDate;
+    private String returnDate;
+    private int numberOfPeople;
     private double totalPrice;
     private Long userId;
-    private String username; // Added username field for fallback authentication
-    private Long travelPackageId;
+    private String username;
+    private Long hotelId;
+    private Long destinationId;
+    private String specialRequests;
 
     // Getters and Setters
     public Long getId() {
@@ -36,6 +38,22 @@ public class BookingDTO {
         this.travelDate = travelDate;
     }
 
+    public String getReturnDate() {
+        return returnDate;
+    }
+
+    public void setReturnDate(String returnDate) {
+        this.returnDate = returnDate;
+    }
+
+    public int getNumberOfPeople() {
+        return numberOfPeople;
+    }
+
+    public void setNumberOfPeople(int numberOfPeople) {
+        this.numberOfPeople = numberOfPeople;
+    }
+
     public double getTotalPrice() {
         return totalPrice;
     }
@@ -43,7 +61,7 @@ public class BookingDTO {
     public void setTotalPrice(double totalPrice) {
         this.totalPrice = totalPrice;
     }
-    
+
     public Long getUserId() {
         return userId;
     }
@@ -51,7 +69,7 @@ public class BookingDTO {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-    
+
     public String getUsername() {
         return username;
     }
@@ -60,11 +78,27 @@ public class BookingDTO {
         this.username = username;
     }
 
-    public Long getTravelPackageId() {
-        return travelPackageId;
+    public Long getHotelId() {
+        return hotelId;
     }
 
-    public void setTravelPackageId(Long travelPackageId) {
-        this.travelPackageId = travelPackageId;
+    public void setHotelId(Long hotelId) {
+        this.hotelId = hotelId;
+    }
+
+    public Long getDestinationId() {
+        return destinationId;
+    }
+
+    public void setDestinationId(Long destinationId) {
+        this.destinationId = destinationId;
+    }
+
+    public String getSpecialRequests() {
+        return specialRequests;
+    }
+
+    public void setSpecialRequests(String specialRequests) {
+        this.specialRequests = specialRequests;
     }
 }
